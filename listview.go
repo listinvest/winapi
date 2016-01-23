@@ -4,7 +4,7 @@
 
 // +build windows
 
-package win
+package winapi
 
 const (
 	LVSCW_AUTOSIZE           = ^uintptr(0)

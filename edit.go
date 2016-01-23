@@ -4,7 +4,7 @@
 
 // +build windows
 
-package win
+package winapi
 
 // Edit styles
 const (

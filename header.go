@@ -4,7 +4,7 @@
 
 // +build windows
 
-package win
+package winapi
 
 const (
 	HDF_SORTDOWN = 0x200

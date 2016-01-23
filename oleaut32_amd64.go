@@ -4,7 +4,7 @@
 
 // +build windows
 
-package win
+package winapi
 
 type VAR_BSTR struct {
 	vt        VARTYPE
