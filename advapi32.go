@@ -53,6 +53,13 @@ const (
 
 )
 
+const (
+	REG_OPTION_NON_VOLATILE = 0
+
+	REG_CREATED_NEW_KEY     = 1
+	REG_OPENED_EXISTING_KEY = 2
+)
+
 var (
 	// Library
 	libadvapi32 uintptr
@@ -60,6 +67,8 @@ var (
 	// Functions
 	regCloseKey     uintptr
 	regOpenKeyEx    uintptr
+	regDeleteKey    uintptr
+	regCreateKeyEx  uintptr
 	regQueryValueEx uintptr
 	regEnumValue    uintptr
 	regSetValueEx   uintptr
@@ -72,9 +81,27 @@ func init() {
 	// Functions
 	regCloseKey = MustGetProcAddress(libadvapi32, "RegCloseKey")
 	regOpenKeyEx = MustGetProcAddress(libadvapi32, "RegOpenKeyExW")
+	regDeleteKey = MustGetProcAddress(libadvapi32, "RegDeleteKeyW")
+	regCreateKeyEx = MustGetProcAddress(libadvapi32, "RegCreateKeyExW")
 	regQueryValueEx = MustGetProcAddress(libadvapi32, "RegQueryValueExW")
 	regEnumValue = MustGetProcAddress(libadvapi32, "RegEnumValueW")
 	regSetValueEx = MustGetProcAddress(libadvapi32, "RegSetValueExW")
+}
+
+func RegDeleteKey(hKey HKEY, subkey *uint16) (regerrno error) {
+	ret, _, _ := syscall.Syscall(regDeleteKey, 2, uintptr(hKey), uintptr(unsafe.Pointer(subkey)), 0)
+	if ret != 0 {
+		regerrno = syscall.Errno(ret)
+	}
+	return
+}
+
+func RegCreateKeyEx(hKey HKEY, subkey *uint16, reserved uint32, class *uint16, options uint32, desired uint32, sa *syscall.SecurityAttributes, result *HKEY, disposition *uint32) (regerrno error) {
+	ret, _, _ := syscall.Syscall9(regCreateKeyEx, 9, uintptr(hKey), uintptr(unsafe.Pointer(subkey)), uintptr(reserved), uintptr(unsafe.Pointer(class)), uintptr(options), uintptr(desired), uintptr(unsafe.Pointer(sa)), uintptr(unsafe.Pointer(result)), uintptr(unsafe.Pointer(disposition)))
+	if ret != 0 {
+		regerrno = syscall.Errno(ret)
+	}
+	return
 }
 
 func RegCloseKey(hKey HKEY) int32 {
