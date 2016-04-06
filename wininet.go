@@ -103,7 +103,7 @@ func init() {
 
 type InternetPtr interface{}
 
-func InternetSetOption(hInternet HINTERNET, dwOption uint32, interfaceBuffer InternetPtr, dwBufferLength uint32) int32 {
+func InternetSetOption(hInternet HINTERNET, dwOption uint32, interfaceBuffer InternetPtr, dwBufferLength uint32) bool {
 	var lpBuffer unsafe.Pointer
 
 	switch dwOption {
@@ -119,5 +119,5 @@ func InternetSetOption(hInternet HINTERNET, dwOption uint32, interfaceBuffer Int
 		0,
 		0)
 
-	return int32(ret)
+	return (0 != ret)
 }
