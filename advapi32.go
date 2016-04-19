@@ -88,16 +88,30 @@ func init() {
 	regSetValueEx = MustGetProcAddress(libadvapi32, "RegSetValueExW")
 }
 
-func RegDeleteKey(hKey HKEY, subkey *uint16) (regerrno error) {
-	ret, _, _ := syscall.Syscall(regDeleteKey, 2, uintptr(hKey), uintptr(unsafe.Pointer(subkey)), 0)
+func RegDeleteKey(hKey HKEY, subkey string) (regerrno error) {
+	ret, _, _ := syscall.Syscall(regDeleteKey, 2,
+		uintptr(hKey),
+		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(subkey))), 
+		0)
+		
 	if ret != 0 {
 		regerrno = syscall.Errno(ret)
 	}
 	return
 }
 
-func RegCreateKeyEx(hKey HKEY, subkey *uint16, reserved uint32, class *uint16, options uint32, desired uint32, sa *syscall.SecurityAttributes, result *HKEY, disposition *uint32) (regerrno error) {
-	ret, _, _ := syscall.Syscall9(regCreateKeyEx, 9, uintptr(hKey), uintptr(unsafe.Pointer(subkey)), uintptr(reserved), uintptr(unsafe.Pointer(class)), uintptr(options), uintptr(desired), uintptr(unsafe.Pointer(sa)), uintptr(unsafe.Pointer(result)), uintptr(unsafe.Pointer(disposition)))
+func RegCreateKeyEx(hKey HKEY, subkey string, reserved uint32, class *uint16, options uint32, desired uint32, sa *syscall.SecurityAttributes, result *HKEY, disposition *uint32) (regerrno error) {
+	ret, _, _ := syscall.Syscall9(regCreateKeyEx, 9,
+		uintptr(hKey),
+		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(subkey))),
+		uintptr(reserved),
+		uintptr(unsafe.Pointer(class)),
+		uintptr(options),
+		uintptr(desired),
+		uintptr(unsafe.Pointer(sa)),
+		uintptr(unsafe.Pointer(result)),
+		uintptr(unsafe.Pointer(disposition)))
+
 	if ret != 0 {
 		regerrno = syscall.Errno(ret)
 	}
@@ -113,10 +127,10 @@ func RegCloseKey(hKey HKEY) int32 {
 	return int32(ret)
 }
 
-func RegOpenKeyEx(hKey HKEY, lpSubKey *uint16, ulOptions uint32, samDesired REGSAM, phkResult *HKEY) int32 {
+func RegOpenKeyEx(hKey HKEY, lpSubKey string, ulOptions uint32, samDesired REGSAM, phkResult *HKEY) int32 {
 	ret, _, _ := syscall.Syscall6(regOpenKeyEx, 5,
 		uintptr(hKey),
-		uintptr(unsafe.Pointer(lpSubKey)),
+		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(lpSubKey))),
 		uintptr(ulOptions),
 		uintptr(samDesired),
 		uintptr(unsafe.Pointer(phkResult)),
@@ -125,11 +139,11 @@ func RegOpenKeyEx(hKey HKEY, lpSubKey *uint16, ulOptions uint32, samDesired REGS
 	return int32(ret)
 }
 
-func RegQueryValueEx(hKey HKEY, lpValueName *uint16, lpReserved, lpType *uint32, lpData *byte, lpcbData *uint32) int32 {
+func RegQueryValueEx(hKey HKEY, lpValueName string, lpReserved uint32, lpType *uint32, lpData *byte, lpcbData *uint32) int32 {
 	ret, _, _ := syscall.Syscall6(regQueryValueEx, 6,
 		uintptr(hKey),
-		uintptr(unsafe.Pointer(lpValueName)),
-		uintptr(unsafe.Pointer(lpReserved)),
+		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(lpValueName))),
+		uintptr(lpReserved),
 		uintptr(unsafe.Pointer(lpType)),
 		uintptr(unsafe.Pointer(lpData)),
 		uintptr(unsafe.Pointer(lpcbData)))
@@ -137,13 +151,13 @@ func RegQueryValueEx(hKey HKEY, lpValueName *uint16, lpReserved, lpType *uint32,
 	return int32(ret)
 }
 
-func RegEnumValue(hKey HKEY, index uint32, lpValueName *uint16, lpcchValueName *uint32, lpReserved, lpType *uint32, lpData *byte, lpcbData *uint32) int32 {
+func RegEnumValue(hKey HKEY, index uint32, lpValueName string, lpcchValueName *uint32, lpReserved uint32, lpType *uint32, lpData *byte, lpcbData *uint32) int32 {
 	ret, _, _ := syscall.Syscall9(regEnumValue, 8,
 		uintptr(hKey),
 		uintptr(index),
-		uintptr(unsafe.Pointer(lpValueName)),
+		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(lpValueName))),
 		uintptr(unsafe.Pointer(lpcchValueName)),
-		uintptr(unsafe.Pointer(lpReserved)),
+		uintptr(lpReserved),
 		uintptr(unsafe.Pointer(lpType)),
 		uintptr(unsafe.Pointer(lpData)),
 		uintptr(unsafe.Pointer(lpcbData)),
@@ -151,10 +165,10 @@ func RegEnumValue(hKey HKEY, index uint32, lpValueName *uint16, lpcchValueName *
 	return int32(ret)
 }
 
-func RegSetValueEx(hKey HKEY, lpValueName *uint16, lpReserved, lpDataType uint64, lpData *byte, cbData uint32) int32 {
+func RegSetValueEx(hKey HKEY, lpValueName string, lpReserved uint32, lpDataType uint32, lpData *byte, cbData uint32) int32 {
 	ret, _, _ := syscall.Syscall6(regSetValueEx, 6,
 		uintptr(hKey),
-		uintptr(unsafe.Pointer(lpValueName)),
+		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(lpValueName))),
 		uintptr(lpReserved),
 		uintptr(lpDataType),
 		uintptr(unsafe.Pointer(lpData)),
