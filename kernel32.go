@@ -78,6 +78,7 @@ var (
 	setLastError           uintptr
 	systemTimeToFileTime   uintptr
 	getProfileString       uintptr
+	globalMemoryStatusEx   uintptr
 )
 
 type (
@@ -114,6 +115,17 @@ type SYSTEMTIME struct {
 	WSecond       uint16
 	WMilliseconds uint16
 }
+type MEMORYSTATUSEX struct {
+	Length               uint32
+	MemoryLoad           uint32
+	TotalPhys            uint64
+	AvailPhys            uint64
+	TotalPageFile        uint64
+	AvailPageFile        uint64
+	TotalVirtual         uint64
+	AvailVirtual         uint64
+	AvailExtendedVirtual uint64
+}
 
 func init() {
 	// Library
@@ -141,6 +153,7 @@ func init() {
 	mulDiv = MustGetProcAddress(libkernel32, "MulDiv")
 	setLastError = MustGetProcAddress(libkernel32, "SetLastError")
 	systemTimeToFileTime = MustGetProcAddress(libkernel32, "SystemTimeToFileTime")
+	globalMemoryStatusEx = MustGetProcAddress(libkernel32, "GlobalMemoryStatusEx")
 
 }
 
@@ -336,6 +349,14 @@ func SystemTimeToFileTime(lpSystemTime *SYSTEMTIME, lpFileTime *FILETIME) bool {
 		uintptr(unsafe.Pointer(lpSystemTime)),
 		uintptr(unsafe.Pointer(lpFileTime)),
 		0)
+
+	return ret != 0
+}
+
+func GlobalMemoryStatusEx(lpBuffer *MEMORYSTATUSEX) bool {
+	ret, _, _ := syscall.Syscall(globalMemoryStatusEx, 1,
+		uintptr(unsafe.Pointer(lpBuffer)),
+		0, 0)
 
 	return ret != 0
 }

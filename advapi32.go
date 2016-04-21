@@ -139,13 +139,13 @@ func RegOpenKeyEx(hKey HKEY, lpSubKey string, ulOptions uint32, samDesired REGSA
 	return int32(ret)
 }
 
-func RegQueryValueEx(hKey HKEY, lpValueName string, lpReserved uint32, lpType *uint32, lpData *byte, lpcbData *uint32) int32 {
+func RegQueryValueEx(hKey HKEY, lpValueName string, lpReserved uint32, lpType *uint32, lpData *[]uint16, lpcbData *uint32) int32 {
 	ret, _, _ := syscall.Syscall6(regQueryValueEx, 6,
 		uintptr(hKey),
 		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(lpValueName))),
 		uintptr(lpReserved),
 		uintptr(unsafe.Pointer(lpType)),
-		uintptr(unsafe.Pointer(lpData)),
+		uintptr(unsafe.Pointer(&(*lpData)[0])),
 		uintptr(unsafe.Pointer(lpcbData)))
 
 	return int32(ret)
