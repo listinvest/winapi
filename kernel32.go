@@ -363,7 +363,7 @@ func GlobalMemoryStatusEx(lpBuffer *MEMORYSTATUSEX) bool {
 	return ret != 0
 }
 
-func SetStdHandle(stdhandle uint32, handle HANDLE) bool {
+func SetStdHandle(stdhandle int32, handle HANDLE) bool {
 	ret, _, _ := syscall.Syscall(setStdHandle, 2,
 		uintptr(stdhandle), uintptr(handle),
 		0)
