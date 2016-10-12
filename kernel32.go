@@ -79,6 +79,7 @@ var (
 	systemTimeToFileTime   uintptr
 	getProfileString       uintptr
 	globalMemoryStatusEx   uintptr
+	setStdHandle           uintptr
 )
 
 type (
@@ -154,6 +155,7 @@ func init() {
 	setLastError = MustGetProcAddress(libkernel32, "SetLastError")
 	systemTimeToFileTime = MustGetProcAddress(libkernel32, "SystemTimeToFileTime")
 	globalMemoryStatusEx = MustGetProcAddress(libkernel32, "GlobalMemoryStatusEx")
+	setStdHandle = MustGetProcAddress(libkernel32, "SetStdHandle")
 
 }
 
@@ -357,6 +359,14 @@ func GlobalMemoryStatusEx(lpBuffer *MEMORYSTATUSEX) bool {
 	ret, _, _ := syscall.Syscall(globalMemoryStatusEx, 1,
 		uintptr(unsafe.Pointer(lpBuffer)),
 		0, 0)
+
+	return ret != 0
+}
+
+func SetStdHandle(stdhandle uint32, handle HANDLE) bool {
+	ret, _, _ := syscall.Syscall(setStdHandle, 2,
+		uintptr(stdhandle), uintptr(handle),
+		0)
 
 	return ret != 0
 }
